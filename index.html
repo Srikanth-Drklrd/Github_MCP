@@ -126,7 +126,7 @@ header.hidden{opacity:0;pointer-events:none;}
   .card:hover .card-play-bg{background:rgba(0,0,0,.35);}
 }
 /* tap highlight on touch */
-.card:active{transform:scale(.97);opacity:.85;}
+.card:active{opacity:.7;} /* FIX 2: removed transform to fix active scale bug */
 
 .card-thumb{
   width:100%;aspect-ratio:2/3;
@@ -184,9 +184,7 @@ header.hidden{opacity:0;pointer-events:none;}
 .similar-grid .skel{width:100%;}
 
 /* ══════════════════════════════════════════
-   MODAL  — full-viewport split layout
-   Desktop: LEFT sticky visual | RIGHT scrollable content
-   Mobile:  stacked — visual hero top, content below
+   MODAL
 ══════════════════════════════════════════ */
 .modal-backdrop{
   display:none;position:fixed;inset:0;
@@ -202,22 +200,22 @@ header.hidden{opacity:0;pointer-events:none;}
 
 .modal-inner{
   position:absolute;inset:0;
-  display:flex;flex-direction:column; /* mobile: stacked */
+  display:flex;flex-direction:column;
   overflow:hidden;
 }
 @media(min-width:700px){
-  .modal-inner{flex-direction:row;} /* desktop: side by side */
+  .modal-inner{flex-direction:row;}
 }
 
 /* ── LEFT PANEL ── */
 .modal-left{
   position:relative;
-  width:100%;height:56vw;min-height:200px;max-height:320px; /* mobile */
+  width:100%;height:56vw;min-height:200px;max-height:320px;
   flex-shrink:0;overflow:hidden;background:#000;
 }
 @media(min-width:700px){
   .modal-left{
-    width:300px;height:100%; /* desktop: full height column */
+    width:300px;height:100%;
     max-height:none;
   }
 }
@@ -242,7 +240,6 @@ header.hidden{opacity:0;pointer-events:none;}
     linear-gradient(to right, rgba(0,0,0,.5) 0%,transparent 30%,rgba(0,0,0,.6) 100%),
     linear-gradient(to bottom, rgba(0,0,0,.25) 0%,transparent 20%,transparent 60%,rgba(0,0,0,.92) 100%);
 }
-/* mobile vignette: stronger bottom fade into content */
 @media(max-width:699px){
   .ml-vignette{background:linear-gradient(to bottom,rgba(0,0,0,.1) 0%,rgba(0,0,0,.0) 40%,rgba(8,8,8,.98) 100%);}
 }
@@ -279,7 +276,6 @@ header.hidden{opacity:0;pointer-events:none;}
   background:rgba(10,10,10,.97);
   -webkit-overflow-scrolling:touch;
   scrollbar-width:thin;scrollbar-color:#222 transparent;
-  /* on mobile, right panel grows naturally; on desktop it is fixed viewport height */
 }
 @media(min-width:700px){
   .modal-right{
@@ -291,13 +287,11 @@ header.hidden{opacity:0;pointer-events:none;}
 .modal-right::-webkit-scrollbar{width:3px;}
 .modal-right::-webkit-scrollbar-thumb{background:#222;}
 
-/* inner flex column: content body + cast always fills desktop height */
 .mr-inner{
   display:flex;flex-direction:column;
-  min-height:100%; /* on desktop: stretches to fill 100vh panel */
+  min-height:100%;
 }
 
-/* type badge above title */
 .m-type{
   display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
   padding:3px 9px;border-radius:4px;
@@ -335,10 +329,10 @@ header.hidden{opacity:0;pointer-events:none;}
 .btn-trailer:hover{background:rgba(255,255,255,.12);}
 .btn-trailer:active{transform:scale(.97);}
 
-/* ── CAST: vertical list, self-scrolling ── */
+/* ── CAST ── */
 .cast-section{
   flex:1;display:flex;flex-direction:column;
-  margin-top:auto; /* pushes to bottom on desktop when content is short */
+  margin-top:auto;
 }
 .cast-section h4{
   font-size:10px;font-weight:700;color:var(--muted);
@@ -347,13 +341,11 @@ header.hidden{opacity:0;pointer-events:none;}
 .cast-list{
   display:flex;flex-direction:column;gap:0;
   overflow-y:auto;overflow-x:hidden;
-  max-height:300px;        /* cap + self-scroll on desktop */
+  max-height:300px;
   scrollbar-width:thin;scrollbar-color:#222 transparent;
-  /* fade edges to hint scrollability */
   mask-image:linear-gradient(to bottom,transparent 0,#000 5%,#000 95%,transparent 100%);
   -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 5%,#000 95%,transparent 100%);
 }
-/* on mobile, let cast grow naturally (page itself scrolls) */
 @media(max-width:699px){
   .cast-list{max-height:none;overflow-y:visible;mask-image:none;-webkit-mask-image:none;}
   .cast-section{margin-top:0;}
@@ -608,13 +600,9 @@ header.hidden{opacity:0;pointer-events:none;}
 <div class="modal-backdrop" id="mBackdrop" onclick="closeModal()"></div>
 <div class="modal-sheet" id="mSheet">
   <div class="modal-inner">
-
-    <div class="modal-left" id="mLeft">
-      </div>
-
+    <div class="modal-left" id="mLeft"></div>
     <div class="modal-right" id="mRight">
       <div class="mr-inner">
-
         <div id="mTypeBadge"></div>
         <div class="m-title"   id="mTitle"></div>
         <div class="m-tagline" id="mTagline"></div>
@@ -633,13 +621,11 @@ header.hidden{opacity:0;pointer-events:none;}
             Trailer
           </button>
         </div>
-
         <div class="cast-section">
           <div class="m-divider"></div>
           <h4>Cast &amp; Crew</h4>
           <div class="cast-list" id="mCast"></div>
         </div>
-
       </div>
     </div>
   </div>
@@ -649,7 +635,7 @@ header.hidden{opacity:0;pointer-events:none;}
 
 <script>
 /* ══════════════════════════════════════════
-   PROVIDERS — 19 servers, correct URL patterns
+   PROVIDERS
 ══════════════════════════════════════════ */
 const PROVIDERS = [
   { q:'4K',    movie:id=>`https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=e50914`,          tv:(id,s,e)=>`https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true&primaryColor=e50914` },
@@ -716,9 +702,6 @@ let curS     = 1, curE = 1;
 
 /* ══════════════════════════════════════════
    API  — proxy-aware fetch
-   Works from: file://, http://, https://
-   Strategy: probe direct first, then 4 CORS proxies.
-   Once a working route is found it's cached for the session.
 ══════════════════════════════════════════ */
 const PROXIES = [
   u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
@@ -726,8 +709,8 @@ const PROXIES = [
   u => `https://thingproxy.freeboard.io/fetch/${u}`,
   u => `https://api.codetabs.com/v1/proxy?quest=${u}`,
 ];
-let _probeIdx   = -2;   // -2 = not probed yet, -1 = direct works, 0-3 = proxy index
-let _probeP     = null; // in-flight probe promise (prevents duplicate probes)
+let _probeIdx   = -2;   
+let _probeP     = null; 
 
 async function _fetchJSON(url) {
   const r = await fetch(url, { cache: 'default' });
@@ -735,72 +718,109 @@ async function _fetchJSON(url) {
   const txt = await r.text();
   try {
     const j = JSON.parse(txt);
-    // allorigins wraps response in {contents, status}
     if (typeof j.contents === 'string') return JSON.parse(j.contents);
     return j;
   } catch(e) { throw new Error('Bad JSON'); }
 }
 
 async function _probe(tmdbUrl) {
-  // Try direct
-  try {
-    const j = await _fetchJSON(tmdbUrl);
-    _probeIdx = -1;
-    console.info('[CV] Direct fetch ✓');
-    return j;
-  } catch(e) { console.info('[CV] Direct failed:', e.message); }
-
-  // Try proxies
+  try { const j = await _fetchJSON(tmdbUrl); _probeIdx = -1; return j; } catch(e) {}
   for (let i = 0; i < PROXIES.length; i++) {
-    try {
-      const j = await _fetchJSON(PROXIES[i](tmdbUrl));
-      _probeIdx = i;
-      console.info('[CV] Proxy', i, '✓');
-      return j;
-    } catch(e) { console.info('[CV] Proxy', i, 'failed:', e.message); }
+    try { const j = await _fetchJSON(PROXIES[i](tmdbUrl)); _probeIdx = i; return j; } catch(e) {}
   }
-  _probeIdx = -1; // give up, direct will just fail gracefully
-  return {};
+  _probeIdx = -1; return {};
 }
 
 async function api(path, page = 1) {
   const sep = path.includes('?') ? '&' : '?';
   const url = `${BASE}${path}${sep}api_key=${KEY}&page=${page}`;
 
-  // First call: probe and cache the working route
   if (_probeIdx === -2) {
     if (!_probeP) _probeP = _probe(url);
     return await _probeP;
   }
-
-  // Subsequent calls: use cached route directly
   try {
     if (_probeIdx === -1) return await _fetchJSON(url);
     return await _fetchJSON(PROXIES[_probeIdx](url));
   } catch(e) {
-    console.warn('[CV] Cached route failed, re-probing next call:', e.message);
     _probeIdx = -2; _probeP = null;
     return {};
   }
 }
 
-/* ══════════════════════════════════════════
-   TOAST
-══════════════════════════════════════════ */
-let toastT;
 function toast(msg, ms = 3000) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastT);
-  toastT = setTimeout(() => el.classList.remove('show'), ms);
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), ms);
+}
+function gname(ids, map) {
+  return (ids || []).slice(0,2).map(id => map[id]).filter(Boolean).join(', ');
 }
 
 /* ══════════════════════════════════════════
-   GENRE HELPERS
+   ROUTING (NEW - Fixes Back Button)
 ══════════════════════════════════════════ */
-function gname(ids, map) {
-  return (ids || []).slice(0,2).map(id => map[id]).filter(Boolean).join(', ');
+window.addEventListener('hashchange', handleRoute);
+
+async function handleRoute() {
+  const hash = window.location.hash.substring(1);
+
+  if (hash.startsWith('play/')) {
+    const parts = hash.split('/');
+    const type = parts[1];
+    const id = parts[2];
+
+    // If user navigated directly to the link, fetch details first
+    if (!curItem || curId != id) {
+       curId = id; mediaType = type;
+       try {
+           curItem = await api(`/${type}/${id}`);
+       } catch(e) { console.error(e); window.location.hash = ''; return; }
+    }
+    renderPlayerPage();
+  } else {
+    renderHomePage();
+  }
+}
+
+function renderHomePage() {
+  stopFb(); closeDD();
+  
+  // Stop background video audio
+  const frame = document.getElementById('playerFrame');
+  if(frame) frame.src = ''; 
+  
+  document.getElementById('homePage').classList.add('active');
+  document.getElementById('playerPage').classList.remove('active');
+  document.getElementById('header').classList.remove('hidden');
+  document.body.style.overflow = '';
+
+  // If sections aren't loaded yet and no search is active, load them
+  if (!document.getElementById('sectionsWrap').innerHTML && !document.getElementById('searchInput').value) {
+      loadHome();
+  }
+}
+
+async function renderPlayerPage() {
+  closeModal();
+  curS = 1; curE = 1;
+  document.getElementById('homePage').classList.remove('active');
+  document.getElementById('playerPage').classList.add('active');
+  document.getElementById('header').classList.remove('hidden');
+  document.body.style.overflow = '';
+
+  document.getElementById('pTitle').textContent = curItem ? (curItem.title || curItem.name) : '';
+  document.getElementById('pSub').textContent   = '';
+
+  if (mediaType === 'tv') {
+    document.getElementById('epRow').style.display = 'flex';
+    await buildSeasons();
+  } else {
+    document.getElementById('epRow').style.display = 'none';
+  }
+  buildDD();
+  loadSrc(0);
+  loadSimilar();
 }
 
 /* ══════════════════════════════════════════
@@ -810,18 +830,20 @@ async function init() {
   const [gm, gt] = await Promise.all([api('/genre/movie/list'), api('/genre/tv/list')]);
   (gm.genres || []).forEach(g => gMovies[g.id] = g.name);
   (gt.genres || []).forEach(g => gTv[g.id]     = g.name);
-  loadHome();
+  
+  // Trigger initial route
+  handleRoute();
 }
 
 /* ══════════════════════════════════════════
    HOME
 ══════════════════════════════════════════ */
 function goHome() {
-  stopFb(); closeDD();
-  document.getElementById('homePage').classList.add('active');
-  document.getElementById('playerPage').classList.remove('active');
-  document.getElementById('header').classList.remove('hidden');
-  document.body.style.overflow = '';
+  window.location.hash = ''; // Using hash triggers handleRoute -> renderHomePage
+  // Reset search when explicitly clicking the home logo
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchSection').style.display = 'none';
+  document.getElementById('sectionsWrap').style.display  = '';
 }
 
 function switchType(t) {
@@ -833,15 +855,12 @@ function switchType(t) {
   loadHome();
 }
 
-/* ── section rows ── */
 async function loadHome() {
   document.getElementById('searchSection').style.display = 'none';
   document.getElementById('sectionsWrap').style.display  = '';
   const secs = mediaType === 'movie' ? SECTIONS_MOVIE : SECTIONS_TV;
-  const gmap = mediaType === 'movie' ? gMovies : gTv;
   const wrap = document.getElementById('sectionsWrap');
 
-  // render skeleton shells immediately
   wrap.innerHTML = secs.map((s, i) => `
     <div class="section" id="sec${i}">
       <div class="section-head">
@@ -850,11 +869,7 @@ async function loadHome() {
       <div class="h-row" id="row${i}">${skels(10)}</div>
     </div>`).join('');
 
-  // Warm up the proxy probe with the first section, then fire all in parallel.
-  // This ensures _probeIdx is set before the parallel fetches begin.
-  await api(secs[0].ep, 1);  // probe/warm-up (result handled below with all sections)
-
-  // Now fire all sections in parallel — proxy route is cached, no race condition
+  await api(secs[0].ep, 1);  
   secs.forEach(async (s, i) => {
     const [p1, p2] = await Promise.all([api(s.ep, 1), api(s.ep, 2)]);
     const results  = [...(p1.results || []), ...(p2.results || [])];
@@ -877,9 +892,15 @@ async function search(q) {
   if (!q.trim()) {
     document.getElementById('searchSection').style.display = 'none';
     document.getElementById('sectionsWrap').style.display  = '';
-    loadHome();
+    if (!document.getElementById('sectionsWrap').innerHTML) loadHome();
     return;
   }
+
+  // FIX: If we are searching from inside the player page, force switch to home view
+  if (window.location.hash.startsWith('#play')) {
+      window.location.hash = ''; // Navigates out and pauses video automatically
+  }
+
   document.getElementById('sectionsWrap').style.display  = 'none';
   document.getElementById('searchSection').style.display = 'block';
   document.getElementById('searchLabel').textContent = `"${q}"`;
@@ -900,7 +921,6 @@ async function search(q) {
     : `<div class="empty">No results for "${q}"</div>`;
 }
 
-/* ── card HTML ── */
 function skels(n, wide = false) {
   return Array(n).fill(`<div class="skel${wide?' skel-wide':''}">
     <div class="skel-thumb"></div>
@@ -943,7 +963,6 @@ function cardHTML(item, t, gmap) {
    MODAL
 ══════════════════════════════════════════ */
 async function openModal(id, t) {
-  // 1. ADD IMMEDIATE FEEDBACK
   toast('Loading...', 5000); 
 
   t = t || mediaType;
@@ -959,7 +978,6 @@ async function openModal(id, t) {
     ]);
     curItem = d;
 
-    /* ── LEFT PANEL layers ── */
     const mLeft = document.getElementById('mLeft');
     const bp = d.backdrop_path ? W128 + d.backdrop_path : null;
     const pp = d.poster_path   ? W500 + d.poster_path   : null;
@@ -967,26 +985,18 @@ async function openModal(id, t) {
 
     if (bp || pp) {
       mLeft.innerHTML = `
-        ${bp
-          ? `<img class="ml-blur" src="${bp}" alt="">`
-          : `<div class="ml-blur-ph"></div>`}
-        ${bp
-          ? `<img class="ml-img" id="mlImg" src="${bp}" alt="">`
-          : `<img class="ml-img" id="mlImg" src="${pp}" alt="">`}
+        ${bp ? `<img class="ml-blur" src="${bp}" alt="">` : `<div class="ml-blur-ph"></div>`}
+        ${bp ? `<img class="ml-img" id="mlImg" src="${bp}" alt="">` : `<img class="ml-img" id="mlImg" src="${pp}" alt="">`}
         <div class="ml-vignette"></div>
         <div class="ml-poster-wrap">
           ${pp ? `<img class="ml-poster" id="mlPoster" src="${pp}" alt="">` : ''}
           ${rating ? `<div class="ml-rating" id="mlRating">★ ${rating}</div>` : ''}
         </div>`;
     } else {
-      mLeft.innerHTML = `<div class="ml-blur-ph"></div>
-        <div class="ml-vignette"></div>
-        <div class="ml-poster-wrap" style="font-size:64px;">🎬</div>`;
+      mLeft.innerHTML = `<div class="ml-blur-ph"></div><div class="ml-vignette"></div><div class="ml-poster-wrap" style="font-size:64px;">🎬</div>`;
     }
 
-    /* ── RIGHT PANEL content ── */
-    document.getElementById('mTypeBadge').innerHTML =
-      `<div class="m-type">${t === 'movie' ? 'Movie' : 'TV Series'}</div>`;
+    document.getElementById('mTypeBadge').innerHTML = `<div class="m-type">${t === 'movie' ? 'Movie' : 'TV Series'}</div>`;
     document.getElementById('mTitle').textContent   = d.title || d.name;
     document.getElementById('mTagline').textContent = d.tagline || '';
 
@@ -1008,36 +1018,25 @@ async function openModal(id, t) {
     const tb = document.getElementById('trailerBtn');
     tb.disabled = !trailer; tb.style.opacity = trailer ? '1' : '0.4';
 
-    /* ── CAST vertical list ── */
     const castHtml = (credits.cast||[]).slice(0,20).map(p => `
       <div class="cast-row">
-        ${p.profile_path
-          ? `<img class="cast-face" src="${W500}${p.profile_path}" alt="${p.name}" loading="lazy">`
-          : `<div class="cast-face-ph">👤</div>`}
+        ${p.profile_path ? `<img class="cast-face" src="${W500}${p.profile_path}" alt="${p.name}">` : `<div class="cast-face-ph">👤</div>`}
         <div class="cast-info">
           <div class="cast-name">${p.name}</div>
           ${p.character ? `<div class="cast-char">${p.character.replace(/\(.*?\)/g,'').trim()}</div>` : ''}
         </div>
       </div>`).join('');
-    document.getElementById('mCast').innerHTML =
-      castHtml || '<p style="color:#444;font-size:12px;padding:8px 0">No cast data</p>';
+    document.getElementById('mCast').innerHTML = castHtml || '<p style="color:#444;font-size:12px;padding:8px 0">No cast data</p>';
 
-    /* ── Parallax on right-panel scroll (desktop only) ── */
     const mRight  = document.getElementById('mRight');
     let rafId = null, lastSY = 0;
-    function onScroll() {
-      lastSY = mRight.scrollTop;
-      if (!rafId) rafId = requestAnimationFrame(applyP);
-    }
+    function onScroll() { lastSY = mRight.scrollTop; if (!rafId) rafId = requestAnimationFrame(applyP); }
     function applyP() {
-      rafId = null;
-      const t = lastSY;
-      const img    = document.getElementById('mlImg');
-      const poster = document.getElementById('mlPoster');
-      const rat    = document.getElementById('mlRating');
-      if (img)    img.style.transform    = `translateY(${t * 0.2}px) scale(1.1)`;
+      rafId = null; const t = lastSY;
+      const img = document.getElementById('mlImg'), poster = document.getElementById('mlPoster'), rat = document.getElementById('mlRating');
+      if (img) img.style.transform = `translateY(${t * 0.2}px) scale(1.1)`;
       if (poster) poster.style.transform = `translateY(${t * 0.06}px)`;
-      if (rat)    rat.style.transform    = `translateY(${t * 0.04}px)`;
+      if (rat) rat.style.transform = `translateY(${t * 0.04}px)`;
     }
     mRight.scrollTop = 0;
     mRight.removeEventListener('scroll', mRight._pFn);
@@ -1045,18 +1044,15 @@ async function openModal(id, t) {
     mRight.addEventListener('scroll', onScroll, { passive:true });
     applyP();
 
-    /* ── show modal ── */
     document.getElementById('mBackdrop').style.display = 'block';
     document.getElementById('mSheet').style.display    = 'block';
     document.getElementById('closeBtn').style.display  = 'flex';
     document.getElementById('header').classList.add('hidden');
     document.body.style.overflow = 'hidden';
 
-    // 2. CLEAR THE TOAST ONCE LOADED
     document.getElementById('toast').classList.remove('show');
 
   } catch (error) {
-    // 3. CATCH MOBILE NETWORK ERRORS
     console.error(error);
     toast('Failed to load movie details. Please try again.');
   }
@@ -1068,40 +1064,18 @@ function closeModal() {
   document.getElementById('closeBtn').style.display  = 'none';
   document.getElementById('header').classList.remove('hidden');
   document.body.style.overflow = '';
-  const mr = document.getElementById('mRight');
-  if (mr) mr.removeEventListener('scroll', mr._pFn);
 }
 
-function openTrailer() {
-  if (trailer) window.open(`https://youtube.com/watch?v=${trailer}`, '_blank');
-}
+function openTrailer() { if (trailer) window.open(`https://youtube.com/watch?v=${trailer}`, '_blank'); }
 
 /* ══════════════════════════════════════════
    PLAYER
 ══════════════════════════════════════════ */
-async function openPlayer() {
-  closeModal();
-  curS = 1; curE = 1;
-  document.getElementById('homePage').classList.remove('active');
-  document.getElementById('playerPage').classList.add('active');
-  document.getElementById('header').classList.remove('hidden');
-  document.body.style.overflow = '';
-
-  document.getElementById('pTitle').textContent = curItem ? (curItem.title || curItem.name) : '';
-  document.getElementById('pSub').textContent   = '';
-
-  if (mediaType === 'tv') {
-    document.getElementById('epRow').style.display = 'flex';
-    await buildSeasons();
-  } else {
-    document.getElementById('epRow').style.display = 'none';
-  }
-  buildDD();
-  loadSrc(0);
-  loadSimilar();
+function openPlayer() {
+  // Push the hash to the URL; handleRoute takes over rendering
+  window.location.hash = `play/${mediaType}/${curId}`;
 }
 
-/* ── source dropdown ── */
 function buildDD() {
   document.getElementById('srcDD').innerHTML = PROVIDERS.map((p, i) => {
     const c = QC[p.q] || '#aaa';
@@ -1120,7 +1094,6 @@ function updateDD(idx) {
   document.querySelectorAll('.src-opt').forEach((el,i) => el.classList.toggle('sel', i===idx));
   document.getElementById('prevBtn').disabled = idx === 0;
   document.getElementById('nextBtn').disabled = idx === PROVIDERS.length-1;
-  document.getElementById(`so${idx}`)?.scrollIntoView({ block:'nearest' });
 }
 
 function toggleDD() {
@@ -1135,9 +1108,7 @@ function closeDD() {
   document.getElementById('srcBtn').classList.remove('open');
   document.getElementById('srcChev').classList.remove('up');
 }
-document.addEventListener('click', e => {
-  if (ddOpen && !document.getElementById('srcWrap').contains(e.target)) closeDD();
-});
+document.addEventListener('click', e => { if (ddOpen && !document.getElementById('srcWrap').contains(e.target)) closeDD(); });
 
 function selSrc(i)      { closeDD(); loadSrc(i); }
 function changeSource(d){ const n=srcIdx+d; if(n>=0&&n<PROVIDERS.length) loadSrc(n); }
@@ -1167,7 +1138,6 @@ function loadSrc(idx) {
 }
 function stopFb() { if (fbTimer) { clearTimeout(fbTimer); fbTimer = null; } }
 
-/* ── TV episode selectors ── */
 async function buildSeasons() {
   const seasons = (curItem.seasons||[]).filter(s=>s.season_number>0);
   document.getElementById('seasonSel').innerHTML =
@@ -1182,9 +1152,7 @@ async function onSeasonChange() {
 async function buildEpisodes(s) {
   const d = await api(`/tv/${curId}/season/${s}`);
   document.getElementById('episodeSel').innerHTML =
-    (d.episodes||[]).map(ep =>
-      `<option value="${ep.episode_number}">Ep ${ep.episode_number}${ep.name ? ' — '+ep.name : ''}</option>`
-    ).join('');
+    (d.episodes||[]).map(ep => `<option value="${ep.episode_number}">Ep ${ep.episode_number}${ep.name ? ' — '+ep.name : ''}</option>`).join('');
   curE = (d.episodes||[])[0]?.episode_number || 1;
 }
 function playEp() {
@@ -1193,7 +1161,6 @@ function playEp() {
   loadSrc(srcIdx);
 }
 
-/* ── similar ── */
 async function loadSimilar() {
   const grid = document.getElementById('simGrid');
   grid.innerHTML = skels(6, true);
@@ -1211,9 +1178,6 @@ async function loadSimilar() {
     : `<div class="empty">No similar titles</div>`;
 }
 
-/* ══════════════════════════════════════════
-   GO
-══════════════════════════════════════════ */
 init();
 </script>
 </body>
