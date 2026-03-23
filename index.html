@@ -537,7 +537,6 @@ header.hidden{opacity:0;pointer-events:none;}
   </div>
 </header>
 
-<!-- HOME -->
 <div id="homePage" class="page active">
   <div class="search-section" id="searchSection">
     <div class="section-head" style="padding:0 0 0 0;">
@@ -548,7 +547,6 @@ header.hidden{opacity:0;pointer-events:none;}
   <div id="sectionsWrap"></div>
 </div>
 
-<!-- PLAYER -->
 <div id="playerPage" class="page">
   <div class="player-topbar">
     <button class="back-btn" onclick="goHome()">
@@ -607,21 +605,16 @@ header.hidden{opacity:0;pointer-events:none;}
   </div>
 </div>
 
-<!-- MODAL -->
 <div class="modal-backdrop" id="mBackdrop" onclick="closeModal()"></div>
 <div class="modal-sheet" id="mSheet">
   <div class="modal-inner">
 
-    <!-- LEFT: sticky parallax visual -->
     <div class="modal-left" id="mLeft">
-      <!-- layers injected by JS -->
-    </div>
+      </div>
 
-    <!-- RIGHT: scrollable content -->
     <div class="modal-right" id="mRight">
       <div class="mr-inner">
 
-        <!-- body content -->
         <div id="mTypeBadge"></div>
         <div class="m-title"   id="mTitle"></div>
         <div class="m-tagline" id="mTagline"></div>
@@ -641,7 +634,6 @@ header.hidden{opacity:0;pointer-events:none;}
           </button>
         </div>
 
-        <!-- cast: pushed to bottom on desktop, flows naturally on mobile -->
         <div class="cast-section">
           <div class="m-divider"></div>
           <h4>Cast &amp; Crew</h4>
@@ -928,7 +920,7 @@ function cardHTML(item, t, gmap) {
 
   return `<div class="card" onclick="openModal(${item.id},'${mt}')">
     <div class="card-thumb">
-      ${poster ? `<img src="${poster}" alt="${title}" loading="lazy">` : `<div class="no-poster">🎬</div>`}
+      ${poster ? `<img src="${poster}" alt="${title}">` : `<div class="no-poster">🎬</div>`}
       <div class="card-play-bg">
         <div class="play-ring">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -951,110 +943,123 @@ function cardHTML(item, t, gmap) {
    MODAL
 ══════════════════════════════════════════ */
 async function openModal(id, t) {
+  // 1. ADD IMMEDIATE FEEDBACK
+  toast('Loading...', 5000); 
+
   t = t || mediaType;
   curId = id; mediaType = t;
   document.getElementById('moviesTab').classList.toggle('active', t === 'movie');
   document.getElementById('tvTab').classList.toggle('active', t === 'tv');
 
-  const [d, credits, videos] = await Promise.all([
-    api(`/${t}/${id}`),
-    api(`/${t}/${id}/credits`),
-    api(`/${t}/${id}/videos`),
-  ]);
-  curItem = d;
+  try {
+    const [d, credits, videos] = await Promise.all([
+      api(`/${t}/${id}`),
+      api(`/${t}/${id}/credits`),
+      api(`/${t}/${id}/videos`),
+    ]);
+    curItem = d;
 
-  /* ── LEFT PANEL layers ── */
-  const mLeft = document.getElementById('mLeft');
-  const bp = d.backdrop_path ? W128 + d.backdrop_path : null;
-  const pp = d.poster_path   ? W500 + d.poster_path   : null;
-  const rating = d.vote_average ? d.vote_average.toFixed(1) : null;
+    /* ── LEFT PANEL layers ── */
+    const mLeft = document.getElementById('mLeft');
+    const bp = d.backdrop_path ? W128 + d.backdrop_path : null;
+    const pp = d.poster_path   ? W500 + d.poster_path   : null;
+    const rating = d.vote_average ? d.vote_average.toFixed(1) : null;
 
-  if (bp || pp) {
-    mLeft.innerHTML = `
-      ${bp
-        ? `<img class="ml-blur" src="${bp}" alt="">`
-        : `<div class="ml-blur-ph"></div>`}
-      ${bp
-        ? `<img class="ml-img" id="mlImg" src="${bp}" alt="">`
-        : `<img class="ml-img" id="mlImg" src="${pp}" alt="">`}
-      <div class="ml-vignette"></div>
-      <div class="ml-poster-wrap">
-        ${pp ? `<img class="ml-poster" id="mlPoster" src="${pp}" alt="">` : ''}
-        ${rating ? `<div class="ml-rating" id="mlRating">★ ${rating}</div>` : ''}
-      </div>`;
-  } else {
-    mLeft.innerHTML = `<div class="ml-blur-ph"></div>
-      <div class="ml-vignette"></div>
-      <div class="ml-poster-wrap" style="font-size:64px;">🎬</div>`;
+    if (bp || pp) {
+      mLeft.innerHTML = `
+        ${bp
+          ? `<img class="ml-blur" src="${bp}" alt="">`
+          : `<div class="ml-blur-ph"></div>`}
+        ${bp
+          ? `<img class="ml-img" id="mlImg" src="${bp}" alt="">`
+          : `<img class="ml-img" id="mlImg" src="${pp}" alt="">`}
+        <div class="ml-vignette"></div>
+        <div class="ml-poster-wrap">
+          ${pp ? `<img class="ml-poster" id="mlPoster" src="${pp}" alt="">` : ''}
+          ${rating ? `<div class="ml-rating" id="mlRating">★ ${rating}</div>` : ''}
+        </div>`;
+    } else {
+      mLeft.innerHTML = `<div class="ml-blur-ph"></div>
+        <div class="ml-vignette"></div>
+        <div class="ml-poster-wrap" style="font-size:64px;">🎬</div>`;
+    }
+
+    /* ── RIGHT PANEL content ── */
+    document.getElementById('mTypeBadge').innerHTML =
+      `<div class="m-type">${t === 'movie' ? 'Movie' : 'TV Series'}</div>`;
+    document.getElementById('mTitle').textContent   = d.title || d.name;
+    document.getElementById('mTagline').textContent = d.tagline || '';
+
+    const gmap   = t === 'movie' ? gMovies : gTv;
+    const genres = (d.genres || []).slice(0,3).map(g => `<span class="chip dim">${g.name}</span>`).join('');
+    const rt     = d.runtime ? `<span class="chip gold">⏱ ${Math.floor(d.runtime/60)}h ${d.runtime%60}m</span>` : '';
+    const eps    = d.number_of_episodes ? `<span class="chip gold">📺 ${d.number_of_episodes} eps</span>` : '';
+    const status = d.status ? `<span class="chip grn">${d.status}</span>` : '';
+    document.getElementById('mMeta').innerHTML =
+      `<span class="chip red">★ ${d.vote_average?.toFixed(1)||'—'}</span>
+       <span class="chip dim">${(d.release_date||d.first_air_date||'').split('-')[0]}</span>
+       ${rt}${eps}${status}${genres}`;
+
+    document.getElementById('mOverview').textContent = d.overview || 'No description available.';
+
+    const trk = (videos.results||[]).find(x=>x.site==='YouTube'&&x.type==='Trailer')
+             || (videos.results||[]).find(x=>x.site==='YouTube');
+    trailer = trk ? trk.key : null;
+    const tb = document.getElementById('trailerBtn');
+    tb.disabled = !trailer; tb.style.opacity = trailer ? '1' : '0.4';
+
+    /* ── CAST vertical list ── */
+    const castHtml = (credits.cast||[]).slice(0,20).map(p => `
+      <div class="cast-row">
+        ${p.profile_path
+          ? `<img class="cast-face" src="${W500}${p.profile_path}" alt="${p.name}" loading="lazy">`
+          : `<div class="cast-face-ph">👤</div>`}
+        <div class="cast-info">
+          <div class="cast-name">${p.name}</div>
+          ${p.character ? `<div class="cast-char">${p.character.replace(/\(.*?\)/g,'').trim()}</div>` : ''}
+        </div>
+      </div>`).join('');
+    document.getElementById('mCast').innerHTML =
+      castHtml || '<p style="color:#444;font-size:12px;padding:8px 0">No cast data</p>';
+
+    /* ── Parallax on right-panel scroll (desktop only) ── */
+    const mRight  = document.getElementById('mRight');
+    let rafId = null, lastSY = 0;
+    function onScroll() {
+      lastSY = mRight.scrollTop;
+      if (!rafId) rafId = requestAnimationFrame(applyP);
+    }
+    function applyP() {
+      rafId = null;
+      const t = lastSY;
+      const img    = document.getElementById('mlImg');
+      const poster = document.getElementById('mlPoster');
+      const rat    = document.getElementById('mlRating');
+      if (img)    img.style.transform    = `translateY(${t * 0.2}px) scale(1.1)`;
+      if (poster) poster.style.transform = `translateY(${t * 0.06}px)`;
+      if (rat)    rat.style.transform    = `translateY(${t * 0.04}px)`;
+    }
+    mRight.scrollTop = 0;
+    mRight.removeEventListener('scroll', mRight._pFn);
+    mRight._pFn = onScroll;
+    mRight.addEventListener('scroll', onScroll, { passive:true });
+    applyP();
+
+    /* ── show modal ── */
+    document.getElementById('mBackdrop').style.display = 'block';
+    document.getElementById('mSheet').style.display    = 'block';
+    document.getElementById('closeBtn').style.display  = 'flex';
+    document.getElementById('header').classList.add('hidden');
+    document.body.style.overflow = 'hidden';
+
+    // 2. CLEAR THE TOAST ONCE LOADED
+    document.getElementById('toast').classList.remove('show');
+
+  } catch (error) {
+    // 3. CATCH MOBILE NETWORK ERRORS
+    console.error(error);
+    toast('Failed to load movie details. Please try again.');
   }
-
-  /* ── RIGHT PANEL content ── */
-  document.getElementById('mTypeBadge').innerHTML =
-    `<div class="m-type">${t === 'movie' ? 'Movie' : 'TV Series'}</div>`;
-  document.getElementById('mTitle').textContent   = d.title || d.name;
-  document.getElementById('mTagline').textContent = d.tagline || '';
-
-  const gmap   = t === 'movie' ? gMovies : gTv;
-  const genres = (d.genres || []).slice(0,3).map(g => `<span class="chip dim">${g.name}</span>`).join('');
-  const rt     = d.runtime ? `<span class="chip gold">⏱ ${Math.floor(d.runtime/60)}h ${d.runtime%60}m</span>` : '';
-  const eps    = d.number_of_episodes ? `<span class="chip gold">📺 ${d.number_of_episodes} eps</span>` : '';
-  const status = d.status ? `<span class="chip grn">${d.status}</span>` : '';
-  document.getElementById('mMeta').innerHTML =
-    `<span class="chip red">★ ${d.vote_average?.toFixed(1)||'—'}</span>
-     <span class="chip dim">${(d.release_date||d.first_air_date||'').split('-')[0]}</span>
-     ${rt}${eps}${status}${genres}`;
-
-  document.getElementById('mOverview').textContent = d.overview || 'No description available.';
-
-  const trk = (videos.results||[]).find(x=>x.site==='YouTube'&&x.type==='Trailer')
-           || (videos.results||[]).find(x=>x.site==='YouTube');
-  trailer = trk ? trk.key : null;
-  const tb = document.getElementById('trailerBtn');
-  tb.disabled = !trailer; tb.style.opacity = trailer ? '1' : '0.4';
-
-  /* ── CAST vertical list ── */
-  const castHtml = (credits.cast||[]).slice(0,20).map(p => `
-    <div class="cast-row">
-      ${p.profile_path
-        ? `<img class="cast-face" src="${W500}${p.profile_path}" alt="${p.name}" loading="lazy">`
-        : `<div class="cast-face-ph">👤</div>`}
-      <div class="cast-info">
-        <div class="cast-name">${p.name}</div>
-        ${p.character ? `<div class="cast-char">${p.character.replace(/\(.*?\)/g,'').trim()}</div>` : ''}
-      </div>
-    </div>`).join('');
-  document.getElementById('mCast').innerHTML =
-    castHtml || '<p style="color:#444;font-size:12px;padding:8px 0">No cast data</p>';
-
-  /* ── Parallax on right-panel scroll (desktop only) ── */
-  const mRight  = document.getElementById('mRight');
-  let rafId = null, lastSY = 0;
-  function onScroll() {
-    lastSY = mRight.scrollTop;
-    if (!rafId) rafId = requestAnimationFrame(applyP);
-  }
-  function applyP() {
-    rafId = null;
-    const t = lastSY;
-    const img    = document.getElementById('mlImg');
-    const poster = document.getElementById('mlPoster');
-    const rat    = document.getElementById('mlRating');
-    if (img)    img.style.transform    = `translateY(${t * 0.2}px) scale(1.1)`;
-    if (poster) poster.style.transform = `translateY(${t * 0.06}px)`;
-    if (rat)    rat.style.transform    = `translateY(${t * 0.04}px)`;
-  }
-  mRight.scrollTop = 0;
-  mRight.removeEventListener('scroll', mRight._pFn);
-  mRight._pFn = onScroll;
-  mRight.addEventListener('scroll', onScroll, { passive:true });
-  applyP();
-
-  /* ── show modal ── */
-  document.getElementById('mBackdrop').style.display = 'block';
-  document.getElementById('mSheet').style.display    = 'block';
-  document.getElementById('closeBtn').style.display  = 'flex';
-  document.getElementById('header').classList.add('hidden');
-  document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
