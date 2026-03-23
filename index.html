@@ -115,7 +115,6 @@ header.hidden{opacity:0;pointer-events:none;}
   background:var(--s2);scroll-snap-align:start;
   border:1px solid transparent;
   transition:transform .22s cubic-bezier(.25,.46,.45,.94),box-shadow .22s,border-color .22s;
-  /* touch devices: no hover flash */
   -webkit-user-select:none;user-select:none;
 }
 @media(min-width:600px){.card{width:158px;}}
@@ -125,8 +124,7 @@ header.hidden{opacity:0;pointer-events:none;}
   .card:hover .play-ring{opacity:1;transform:translate(-50%,-50%) scale(1);}
   .card:hover .card-play-bg{background:rgba(0,0,0,.35);}
 }
-/* tap highlight on touch */
-.card:active{opacity:.7;} /* FIX 2: removed transform to fix active scale bug */
+.card:active{opacity:.7;}
 
 .card-thumb{
   width:100%;aspect-ratio:2/3;
@@ -170,10 +168,8 @@ header.hidden{opacity:0;pointer-events:none;}
 .card-year{font-size:10px;color:var(--muted);}
 .card-genre{font-size:10px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:65px;}
 
-/* search grid: full width */
 .search-grid .card,.similar-grid .card{width:100%;}
 
-/* skeleton */
 .skel{flex-shrink:0;width:140px;border-radius:10px;overflow:hidden;background:var(--s2);scroll-snap-align:start;}
 @media(min-width:600px){.skel{width:158px;}}
 .skel-thumb{width:100%;aspect-ratio:2/3;background:linear-gradient(90deg,#161616 25%,#202020 50%,#161616 75%);background-size:200% 100%;animation:shim 1.4s infinite;}
@@ -221,7 +217,39 @@ header.hidden{opacity:0;pointer-events:none;}
 }
 @media(min-width:900px){.modal-left{width:340px;}}
 
-/* parallax layers */
+/* Trailer Layer Overlay */
+#trailerLayer {
+  display: none; 
+  position: absolute; 
+  inset: 0; 
+  z-index: 100; 
+  background: #000;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+#trailerLayer .close-trailer-btn {
+  position: absolute; 
+  top: 15px; 
+  left: 15px; 
+  z-index: 101;
+  background: rgba(0,0,0,0.7); 
+  color: #fff; 
+  border: 1px solid rgba(255,255,255,0.2); 
+  padding: 8px 14px; 
+  border-radius: 8px; 
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#trailerLayer .close-trailer-btn:hover { background: var(--red); }
+
+#trailerFrame { width: 100%; height: 100%; border: none; }
+
 .ml-blur{
   position:absolute;inset:-10%;width:120%;height:120%;
   object-fit:cover;
@@ -417,7 +445,6 @@ header.hidden{opacity:0;pointer-events:none;}
 .p-load-text{font-size:13px;color:var(--muted);}
 .p-load-sub{font-size:11px;color:#383838;}
 
-/* controls */
 .ctrl-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
 .src-wrap{position:relative;flex:1;min-width:160px;}
 .src-btn{
@@ -465,7 +492,6 @@ header.hidden{opacity:0;pointer-events:none;}
 .c-btn:active{transform:scale(.96);}
 .c-btn:disabled{opacity:.3;cursor:not-allowed;}
 
-/* TV episode row */
 .ep-row{
   display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;
   background:rgba(255,255,255,.03);border-radius:9px;
@@ -488,7 +514,6 @@ header.hidden{opacity:0;pointer-events:none;}
 .ep-play:hover{background:var(--red2);}
 .ep-play:active{transform:scale(.96);}
 
-/* similar */
 .sim-section{max-width:1100px;margin:24px auto 0;padding:0 var(--pad) 40px;}
 @media(min-width:600px){.sim-section{padding-left:var(--pad-d);padding-right:var(--pad-d);}}
 .sim-section .section-title{
@@ -500,7 +525,6 @@ header.hidden{opacity:0;pointer-events:none;}
 .similar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;}
 @media(min-width:600px){.similar-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}}
 
-/* misc */
 .empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--muted);font-size:14px;}
 .toast{
   position:fixed;bottom:24px;left:50%;
@@ -531,7 +555,7 @@ header.hidden{opacity:0;pointer-events:none;}
 
 <div id="homePage" class="page active">
   <div class="search-section" id="searchSection">
-    <div class="section-head" style="padding:0 0 0 0;">
+    <div class="section-head" style="padding:0;">
       <div class="section-title">Results for <b id="searchLabel"></b></div>
     </div>
     <div class="search-grid" id="searchGrid"></div>
@@ -555,7 +579,7 @@ header.hidden{opacity:0;pointer-events:none;}
 
   <div class="player-wrap-outer">
     <div class="player-box">
-      <iframe id="playerFrame" allowfullscreen allow="autoplay; fullscreen; picture-in-picture; encrypted-media"></iframe>
+      <iframe id="playerFrame" sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-presentation" allowfullscreen allow="autoplay; fullscreen; picture-in-picture; encrypted-media"></iframe>
       <div class="p-loading" id="pLoading">
         <div class="spinner"></div>
         <div class="p-load-text">Loading stream…</div>
@@ -600,7 +624,13 @@ header.hidden{opacity:0;pointer-events:none;}
 <div class="modal-backdrop" id="mBackdrop" onclick="closeModal()"></div>
 <div class="modal-sheet" id="mSheet">
   <div class="modal-inner">
-    <div class="modal-left" id="mLeft"></div>
+    <div class="modal-left" id="mLeft">
+      <div id="mLeftContent"></div>
+      <div id="trailerLayer">
+        <button class="close-trailer-btn" onclick="closeTrailer()">✕ Close Trailer</button>
+        <iframe id="trailerFrame" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>
+    </div>
     <div class="modal-right" id="mRight">
       <div class="mr-inner">
         <div id="mTypeBadge"></div>
@@ -701,7 +731,7 @@ let ddOpen   = false;
 let curS     = 1, curE = 1;
 
 /* ══════════════════════════════════════════
-   API  — proxy-aware fetch
+   API
 ══════════════════════════════════════════ */
 const PROXIES = [
   u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
@@ -758,24 +788,20 @@ function gname(ids, map) {
 }
 
 /* ══════════════════════════════════════════
-   ROUTING (NEW - Fixes Back Button)
+   ROUTING
 ══════════════════════════════════════════ */
 window.addEventListener('hashchange', handleRoute);
 
 async function handleRoute() {
   const hash = window.location.hash.substring(1);
-
   if (hash.startsWith('play/')) {
     const parts = hash.split('/');
     const type = parts[1];
     const id = parts[2];
-
-    // If user navigated directly to the link, fetch details first
     if (!curItem || curId != id) {
        curId = id; mediaType = type;
-       try {
-           curItem = await api(`/${type}/${id}`);
-       } catch(e) { console.error(e); window.location.hash = ''; return; }
+       try { curItem = await api(`/${type}/${id}`); } 
+       catch(e) { window.location.hash = ''; return; }
     }
     renderPlayerPage();
   } else {
@@ -785,17 +811,12 @@ async function handleRoute() {
 
 function renderHomePage() {
   stopFb(); closeDD();
-  
-  // Stop background video audio
   const frame = document.getElementById('playerFrame');
   if(frame) frame.src = ''; 
-  
   document.getElementById('homePage').classList.add('active');
   document.getElementById('playerPage').classList.remove('active');
   document.getElementById('header').classList.remove('hidden');
   document.body.style.overflow = '';
-
-  // If sections aren't loaded yet and no search is active, load them
   if (!document.getElementById('sectionsWrap').innerHTML && !document.getElementById('searchInput').value) {
       loadHome();
   }
@@ -808,10 +829,8 @@ async function renderPlayerPage() {
   document.getElementById('playerPage').classList.add('active');
   document.getElementById('header').classList.remove('hidden');
   document.body.style.overflow = '';
-
   document.getElementById('pTitle').textContent = curItem ? (curItem.title || curItem.name) : '';
   document.getElementById('pSub').textContent   = '';
-
   if (mediaType === 'tv') {
     document.getElementById('epRow').style.display = 'flex';
     await buildSeasons();
@@ -823,24 +842,15 @@ async function renderPlayerPage() {
   loadSimilar();
 }
 
-/* ══════════════════════════════════════════
-   INIT
-══════════════════════════════════════════ */
 async function init() {
   const [gm, gt] = await Promise.all([api('/genre/movie/list'), api('/genre/tv/list')]);
   (gm.genres || []).forEach(g => gMovies[g.id] = g.name);
   (gt.genres || []).forEach(g => gTv[g.id]     = g.name);
-  
-  // Trigger initial route
   handleRoute();
 }
 
-/* ══════════════════════════════════════════
-   HOME
-══════════════════════════════════════════ */
 function goHome() {
-  window.location.hash = ''; // Using hash triggers handleRoute -> renderHomePage
-  // Reset search when explicitly clicking the home logo
+  window.location.hash = ''; 
   document.getElementById('searchInput').value = '';
   document.getElementById('searchSection').style.display = 'none';
   document.getElementById('sectionsWrap').style.display  = '';
@@ -882,7 +892,6 @@ async function loadHome() {
   });
 }
 
-/* ── search ── */
 document.getElementById('searchInput').addEventListener('input', e => {
   clearTimeout(debT);
   debT = setTimeout(() => search(e.target.value), 380);
@@ -895,19 +904,12 @@ async function search(q) {
     if (!document.getElementById('sectionsWrap').innerHTML) loadHome();
     return;
   }
-
-  // FIX: If we are searching from inside the player page, force switch to home view
-  if (window.location.hash.startsWith('#play')) {
-      window.location.hash = ''; // Navigates out and pauses video automatically
-  }
-
+  if (window.location.hash.startsWith('#play')) window.location.hash = ''; 
   document.getElementById('sectionsWrap').style.display  = 'none';
   document.getElementById('searchSection').style.display = 'block';
   document.getElementById('searchLabel').textContent = `"${q}"`;
-
   const grid = document.getElementById('searchGrid');
   grid.innerHTML = skels(12, true);
-
   const gmap = mediaType === 'movie' ? gMovies : gTv;
   const [p1, p2] = await Promise.all([
     api(`/search/multi?query=${encodeURIComponent(q)}`, 1),
@@ -915,7 +917,6 @@ async function search(q) {
   ]);
   const results = [...(p1.results||[]), ...(p2.results||[])]
     .filter(x => x.media_type === 'movie' || x.media_type === 'tv');
-
   grid.innerHTML = results.length
     ? results.map(item => cardHTML(item, mediaType, gmap)).join('')
     : `<div class="empty">No results for "${q}"</div>`;
@@ -960,11 +961,10 @@ function cardHTML(item, t, gmap) {
 }
 
 /* ══════════════════════════════════════════
-   MODAL
+   MODAL & TRAILER
 ══════════════════════════════════════════ */
 async function openModal(id, t) {
   toast('Loading...', 5000); 
-
   t = t || mediaType;
   curId = id; mediaType = t;
   document.getElementById('moviesTab').classList.toggle('active', t === 'movie');
@@ -977,14 +977,13 @@ async function openModal(id, t) {
       api(`/${t}/${id}/videos`),
     ]);
     curItem = d;
-
-    const mLeft = document.getElementById('mLeft');
+    const content = document.getElementById('mLeftContent');
     const bp = d.backdrop_path ? W128 + d.backdrop_path : null;
     const pp = d.poster_path   ? W500 + d.poster_path   : null;
     const rating = d.vote_average ? d.vote_average.toFixed(1) : null;
 
     if (bp || pp) {
-      mLeft.innerHTML = `
+      content.innerHTML = `
         ${bp ? `<img class="ml-blur" src="${bp}" alt="">` : `<div class="ml-blur-ph"></div>`}
         ${bp ? `<img class="ml-img" id="mlImg" src="${bp}" alt="">` : `<img class="ml-img" id="mlImg" src="${pp}" alt="">`}
         <div class="ml-vignette"></div>
@@ -993,72 +992,37 @@ async function openModal(id, t) {
           ${rating ? `<div class="ml-rating" id="mlRating">★ ${rating}</div>` : ''}
         </div>`;
     } else {
-      mLeft.innerHTML = `<div class="ml-blur-ph"></div><div class="ml-vignette"></div><div class="ml-poster-wrap" style="font-size:64px;">🎬</div>`;
+      content.innerHTML = `<div class="ml-blur-ph"></div><div class="ml-vignette"></div><div class="ml-poster-wrap" style="font-size:64px;">🎬</div>`;
     }
 
     document.getElementById('mTypeBadge').innerHTML = `<div class="m-type">${t === 'movie' ? 'Movie' : 'TV Series'}</div>`;
     document.getElementById('mTitle').textContent   = d.title || d.name;
     document.getElementById('mTagline').textContent = d.tagline || '';
-
     const gmap   = t === 'movie' ? gMovies : gTv;
     const genres = (d.genres || []).slice(0,3).map(g => `<span class="chip dim">${g.name}</span>`).join('');
     const rt     = d.runtime ? `<span class="chip gold">⏱ ${Math.floor(d.runtime/60)}h ${d.runtime%60}m</span>` : '';
     const eps    = d.number_of_episodes ? `<span class="chip gold">📺 ${d.number_of_episodes} eps</span>` : '';
     const status = d.status ? `<span class="chip grn">${d.status}</span>` : '';
-    document.getElementById('mMeta').innerHTML =
-      `<span class="chip red">★ ${d.vote_average?.toFixed(1)||'—'}</span>
-       <span class="chip dim">${(d.release_date||d.first_air_date||'').split('-')[0]}</span>
-       ${rt}${eps}${status}${genres}`;
-
+    document.getElementById('mMeta').innerHTML = `<span class="chip red">★ ${d.vote_average?.toFixed(1)||'—'}</span><span class="chip dim">${(d.release_date||d.first_air_date||'').split('-')[0]}</span>${rt}${eps}${status}${genres}`;
     document.getElementById('mOverview').textContent = d.overview || 'No description available.';
-
-    const trk = (videos.results||[]).find(x=>x.site==='YouTube'&&x.type==='Trailer')
-             || (videos.results||[]).find(x=>x.site==='YouTube');
+    const trk = (videos.results||[]).find(x=>x.site==='YouTube'&&x.type==='Trailer') || (videos.results||[]).find(x=>x.site==='YouTube');
     trailer = trk ? trk.key : null;
     const tb = document.getElementById('trailerBtn');
     tb.disabled = !trailer; tb.style.opacity = trailer ? '1' : '0.4';
-
-    const castHtml = (credits.cast||[]).slice(0,20).map(p => `
-      <div class="cast-row">
-        ${p.profile_path ? `<img class="cast-face" src="${W500}${p.profile_path}" alt="${p.name}">` : `<div class="cast-face-ph">👤</div>`}
-        <div class="cast-info">
-          <div class="cast-name">${p.name}</div>
-          ${p.character ? `<div class="cast-char">${p.character.replace(/\(.*?\)/g,'').trim()}</div>` : ''}
-        </div>
-      </div>`).join('');
+    const castHtml = (credits.cast||[]).slice(0,20).map(p => `<div class="cast-row">${p.profile_path ? `<img class="cast-face" src="${W500}${p.profile_path}" alt="${p.name}">` : `<div class="cast-face-ph">👤</div>`}<div class="cast-info"><div class="cast-name">${p.name}</div>${p.character ? `<div class="cast-char">${p.character.replace(/\(.*?\)/g,'').trim()}</div>` : ''}</div></div>`).join('');
     document.getElementById('mCast').innerHTML = castHtml || '<p style="color:#444;font-size:12px;padding:8px 0">No cast data</p>';
-
-    const mRight  = document.getElementById('mRight');
-    let rafId = null, lastSY = 0;
-    function onScroll() { lastSY = mRight.scrollTop; if (!rafId) rafId = requestAnimationFrame(applyP); }
-    function applyP() {
-      rafId = null; const t = lastSY;
-      const img = document.getElementById('mlImg'), poster = document.getElementById('mlPoster'), rat = document.getElementById('mlRating');
-      if (img) img.style.transform = `translateY(${t * 0.2}px) scale(1.1)`;
-      if (poster) poster.style.transform = `translateY(${t * 0.06}px)`;
-      if (rat) rat.style.transform = `translateY(${t * 0.04}px)`;
-    }
-    mRight.scrollTop = 0;
-    mRight.removeEventListener('scroll', mRight._pFn);
-    mRight._pFn = onScroll;
-    mRight.addEventListener('scroll', onScroll, { passive:true });
-    applyP();
 
     document.getElementById('mBackdrop').style.display = 'block';
     document.getElementById('mSheet').style.display    = 'block';
     document.getElementById('closeBtn').style.display  = 'flex';
     document.getElementById('header').classList.add('hidden');
     document.body.style.overflow = 'hidden';
-
     document.getElementById('toast').classList.remove('show');
-
-  } catch (error) {
-    console.error(error);
-    toast('Failed to load movie details. Please try again.');
-  }
+  } catch (error) { toast('Failed to load movie details.'); }
 }
 
 function closeModal() {
+  closeTrailer();
   document.getElementById('mBackdrop').style.display = 'none';
   document.getElementById('mSheet').style.display    = 'none';
   document.getElementById('closeBtn').style.display  = 'none';
@@ -1066,24 +1030,31 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
-function openTrailer() { if (trailer) window.open(`https://youtube.com/watch?v=${trailer}`, '_blank'); }
+function openTrailer() {
+  if (trailer) {
+    const layer = document.getElementById('trailerLayer');
+    const frame = document.getElementById('trailerFrame');
+    frame.src = `https://www.youtube.com/embed/${trailer}?autoplay=1&rel=0`;
+    layer.style.display = 'block';
+  }
+}
+
+function closeTrailer() {
+  const layer = document.getElementById('trailerLayer');
+  const frame = document.getElementById('trailerFrame');
+  frame.src = '';
+  layer.style.display = 'none';
+}
 
 /* ══════════════════════════════════════════
-   PLAYER
+   PLAYER LOGIC
 ══════════════════════════════════════════ */
-function openPlayer() {
-  // Push the hash to the URL; handleRoute takes over rendering
-  window.location.hash = `play/${mediaType}/${curId}`;
-}
+function openPlayer() { window.location.hash = `play/${mediaType}/${curId}`; }
 
 function buildDD() {
   document.getElementById('srcDD').innerHTML = PROVIDERS.map((p, i) => {
     const c = QC[p.q] || '#aaa';
-    return `<div class="src-opt" id="so${i}" onclick="selSrc(${i})">
-      <span class="opt-n">${i+1}</span>
-      <span>Server ${i+1}</span>
-      <span class="opt-q" style="color:${c};border:1px solid ${c}33;background:${c}11">${p.q}</span>
-    </div>`;
+    return `<div class="src-opt" id="so${i}" onclick="selSrc(${i})"><span class="opt-n">${i+1}</span><span>Server ${i+1}</span><span class="opt-q" style="color:${c};border:1px solid ${c}33;background:${c}11">${p.q}</span></div>`;
   }).join('');
   updateDD(0);
 }
@@ -1110,29 +1081,23 @@ function closeDD() {
 }
 document.addEventListener('click', e => { if (ddOpen && !document.getElementById('srcWrap').contains(e.target)) closeDD(); });
 
-function selSrc(i)      { closeDD(); loadSrc(i); }
+function selSrc(i) { closeDD(); loadSrc(i); }
 function changeSource(d){ const n=srcIdx+d; if(n>=0&&n<PROVIDERS.length) loadSrc(n); }
 function reloadSrc()    { loadSrc(srcIdx); }
 
-function buildSrcUrl(idx) {
-  const p = PROVIDERS[idx];
-  return mediaType === 'movie' ? p.movie(curId) : p.tv(curId, curS, curE);
-}
-
 function loadSrc(idx) {
   stopFb();
-  if (idx < 0 || idx >= PROVIDERS.length) { toast('No more servers.'); return; }
+  if (idx < 0 || idx >= PROVIDERS.length) return;
   srcIdx = idx;
   const frame = document.getElementById('playerFrame');
   const load  = document.getElementById('pLoading');
   load.classList.remove('gone');
-  document.getElementById('pLoadSub').textContent = `Trying server ${idx+1} of ${PROVIDERS.length}…`;
+  document.getElementById('pLoadSub').textContent = `Trying server ${idx+1}…`;
   updateDD(idx);
-  frame.src = buildSrcUrl(idx);
-  if (mediaType === 'tv') document.getElementById('pSub').textContent = `Season ${curS} · Episode ${curE}`;
+  frame.src = mediaType === 'movie' ? PROVIDERS[idx].movie(curId) : PROVIDERS[idx].tv(curId, curS, curE);
   fbTimer = setTimeout(() => {
-    if (idx < PROVIDERS.length-1) { toast(`Server ${idx+1} timed out — trying next…`); loadSrc(idx+1); }
-    else { load.classList.add('gone'); toast('All servers tried. Pick one manually.', 4000); }
+    if (idx < PROVIDERS.length-1) loadSrc(idx+1);
+    else load.classList.add('gone');
   }, 7000);
   frame.onload = () => { stopFb(); load.classList.add('gone'); };
 }
@@ -1140,8 +1105,7 @@ function stopFb() { if (fbTimer) { clearTimeout(fbTimer); fbTimer = null; } }
 
 async function buildSeasons() {
   const seasons = (curItem.seasons||[]).filter(s=>s.season_number>0);
-  document.getElementById('seasonSel').innerHTML =
-    seasons.map(s=>`<option value="${s.season_number}">Season ${s.season_number}</option>`).join('');
+  document.getElementById('seasonSel').innerHTML = seasons.map(s=>`<option value="${s.season_number}">Season ${s.season_number}</option>`).join('');
   curS = seasons[0]?.season_number || 1;
   await buildEpisodes(curS);
 }
@@ -1151,8 +1115,7 @@ async function onSeasonChange() {
 }
 async function buildEpisodes(s) {
   const d = await api(`/tv/${curId}/season/${s}`);
-  document.getElementById('episodeSel').innerHTML =
-    (d.episodes||[]).map(ep => `<option value="${ep.episode_number}">Ep ${ep.episode_number}${ep.name ? ' — '+ep.name : ''}</option>`).join('');
+  document.getElementById('episodeSel').innerHTML = (d.episodes||[]).map(ep => `<option value="${ep.episode_number}">Ep ${ep.episode_number}${ep.name ? ' — '+ep.name : ''}</option>`).join('');
   curE = (d.episodes||[])[0]?.episode_number || 1;
 }
 function playEp() {
@@ -1165,17 +1128,10 @@ async function loadSimilar() {
   const grid = document.getElementById('simGrid');
   grid.innerHTML = skels(6, true);
   const gmap = mediaType==='movie' ? gMovies : gTv;
-  const [sim, rec] = await Promise.all([
-    api(`/${mediaType}/${curId}/similar`),
-    api(`/${mediaType}/${curId}/recommendations`),
-  ]);
+  const [sim, rec] = await Promise.all([api(`/${mediaType}/${curId}/similar`), api(`/${mediaType}/${curId}/recommendations`)]);
   const seen = new Set();
-  const results = [...(rec.results||[]), ...(sim.results||[])]
-    .filter(i => { if(seen.has(i.id))return false; seen.add(i.id); return true; })
-    .slice(0, 18);
-  grid.innerHTML = results.length
-    ? results.map(item => cardHTML(item, mediaType, gmap)).join('')
-    : `<div class="empty">No similar titles</div>`;
+  const results = [...(rec.results||[]), ...(sim.results||[])].filter(i => { if(seen.has(i.id))return false; seen.add(i.id); return true; }).slice(0, 18);
+  grid.innerHTML = results.length ? results.map(item => cardHTML(item, mediaType, gmap)).join('') : `<div class="empty">No similar titles</div>`;
 }
 
 init();
