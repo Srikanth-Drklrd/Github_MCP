@@ -1,0 +1,27 @@
+{
+  "name": "cinevault",
+  "version": "1.0.0",
+  "description": "CineVault - Movie & TV Streaming App",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Srikanth-Drklrd/Github_MCP.git"
+  },
+  "keywords": [
+    "movie",
+    "tv",
+    "streaming",
+    "tmdb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "terser": "^5.49.0",
+    "vite": "^5.4.0"
+  }
+}

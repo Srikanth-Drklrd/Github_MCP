@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <title>CineVault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <script type="module" crossorigin src="/assets/index-Brpe8bFN.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CurQeShn.css">
+</head>
+<body>
+  <header id="header">
+    <div class="logo">CINEVAULT</div>
+    <div class="nav">
+      <button class="nav-btn active" id="moviesTab">Movies</button>
+      <button class="nav-btn" id="tvTab">TV Shows</button>
+    </div>
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input id="searchInput" placeholder="Search…" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+  </header>
+
+  <div id="homePage" class="page active">
+    <div class="search-section" id="searchSection">
+      <div class="section-head" style="padding:0 0 0 0;">
+        <div class="section-title">Results for <b id="searchLabel"></b></div>
+      </div>
+      <div class="search-grid" id="searchGrid"></div>
+    </div>
+    <div id="sectionsWrap"></div>
+  </div>
+
+  <div id="playerPage" class="page">
+    <div class="player-topbar">
+      <button class="back-btn" onclick="goHome()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back
+      </button>
+      <div class="player-meta">
+        <div class="p-title" id="pTitle"></div>
+        <div class="p-sub" id="pSub"></div>
+      </div>
+    </div>
+
+    <div class="player-wrap-outer">
+      <div class="player-box">
+        <iframe id="playerFrame" allow="autoplay; fullscreen; picture-in-picture; encrypted-media"></iframe>
+        <div class="p-loading" id="pLoading">
+          <div class="spinner"></div>
+          <div class="p-load-text">Loading stream…</div>
+          <div class="p-load-sub" id="pLoadSub"></div>
+        </div>
+      </div>
+
+      <div class="ctrl-row">
+        <div class="src-wrap" id="srcWrap">
+          <div class="src-btn" id="srcBtn" onclick="toggleDD()">
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span class="src-dot on" id="srcDot"></span>
+              <span id="srcLabel">Server 1</span>
+            </span>
+            <span style="display:flex;align-items:center;gap:7px;">
+              <span class="src-count" id="srcCount"></span>
+              <span class="chevron" id="srcChev">▾</span>
+            </span>
+          </div>
+          <div class="src-dd" id="srcDD"></div>
+        </div>
+        <button class="c-btn" id="prevBtn" onclick="changeSource(-1)">◀ Prev</button>
+        <button class="c-btn" id="nextBtn" onclick="changeSource(1)">Next ▶</button>
+        <button class="c-btn" onclick="reloadSrc()">⟳</button>
+        <button class="c-btn" id="fsBtn" onclick="toggleFullscreen()" title="Fullscreen">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="ep-row" id="epRow" style="display:none;">
+        <span class="ep-lbl">Season</span>
+        <select class="ep-sel" id="seasonSel" onchange="onSeasonChange()"></select>
+        <span class="ep-lbl">Episode</span>
+        <select class="ep-sel" id="episodeSel"></select>
+        <button class="ep-play" onclick="playEp()">▶ Play</button>
+      </div>
+    </div>
+
+    <div class="sim-section">
+      <div class="section-title">More Like This</div>
+      <div class="similar-grid" id="simGrid"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="mBackdrop" onclick="closeModal()"></div>
+  <div class="modal-sheet" id="mSheet">
+    <div class="modal-inner">
+      <div class="modal-left" id="mLeft"></div>
+      <div class="modal-right" id="mRight">
+        <div class="mr-inner">
+          <div id="mTypeBadge"></div>
+          <div class="m-title" id="mTitle"></div>
+          <div class="m-tagline" id="mTagline"></div>
+          <div class="meta-row" id="mMeta"></div>
+          <div class="m-divider"></div>
+          <div class="m-overview" id="mOverview"></div>
+          <div class="btn-row">
+            <button class="btn btn-watch" onclick="openPlayer()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Watch
+            </button>
+            <button class="btn btn-trailer" id="trailerBtn" onclick="openTrailer()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+              </svg>
+              Trailer
+            </button>
+          </div>
+          <div class="cast-section">
+            <div class="m-divider"></div>
+            <h4>Cast & Crew</h4>
+            <div class="cast-list" id="mCast"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="close-btn" id="closeBtn" onclick="closeModal()">✕</button>
+  <div class="toast" id="toast"></div>
+</body>
+</html>
