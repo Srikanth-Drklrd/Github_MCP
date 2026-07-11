@@ -1,6 +1,5 @@
 export const PROVIDERS = [
-  { q:'4K',    movie:id=>`https://vidlink.pro/movie/${id}?autoplay=true&primaryColor=e50914`,          tv:(id,s,e)=>`https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true&primaryColor=e50914` },
-  { q:'1080p', movie:id=>`https://vidsrc.cc/v3/embed/movie/${id}?autoPlay=true`,                      tv:(id,s,e)=>`https://vidsrc.cc/v3/embed/tv/${id}/${s}/${e}?autoPlay=true` },
+  { q:'4K',    movie:id=>`https://vidsrc.cc/v3/embed/movie/${id}?autoPlay=true`,                      tv:(id,s,e)=>`https://vidsrc.cc/v3/embed/tv/${id}/${s}/${e}?autoPlay=true` },
   { q:'1080p', movie:id=>`https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=true`,                      tv:(id,s,e)=>`https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}?autoPlay=true` },
   { q:'4K',    movie:id=>`https://vidfast.pro/movie/${id}?autoPlay=true`,                             tv:(id,s,e)=>`https://vidfast.pro/tv/${id}/${s}/${e}?autoPlay=true` },
   { q:'4K',    movie:id=>`https://player.videasy.net/movie/${id}?colour=e50914`,                      tv:(id,s,e)=>`https://player.videasy.net/tv/${id}/${s}/${e}?colour=e50914` },
@@ -20,11 +19,26 @@ export const PROVIDERS = [
   { q:'1080p', movie:id=>`https://vidfast.pro/movie/${id}`,                                           tv:(id,s,e)=>`https://vidfast.pro/tv/${id}/${s}/${e}` },
 ];
 
-export const QC = { '4K':'#ffd700', '1080p':'#6ca4e8' };
+// Provider status tracking - mark unreliable providers
+export const PROVIDER_STATUS = {
+  // 0 = unknown, 1 = working, -1 = failed
+  // Updated dynamically based on load success/failure
+};
 
+// Proxy endpoints for providers that block embedding or have CORS issues
 export const PROXIES = [
   u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
   u => `https://thingproxy.freeboard.io/fetch/${u}`,
   u => `https://api.codetabs.com/v1/proxy?quest=${u}`,
 ];
+
+// Providers known to have embedding/CORS issues (will try proxy fallback)
+export const PROBLEMATIC_PROVIDERS = new Set([
+  'vidlink.pro',
+  'vidsrc.cc',
+  'vidfast.pro',
+  'player.videasy.net',
+]);
+
+export const QC = { '4K':'#ffd700', '1080p':'#6ca4e8' };
