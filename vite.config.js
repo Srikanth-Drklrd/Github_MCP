@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   root: '.',
   publicDir: 'public',
+  base: '/Github_MCP/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
