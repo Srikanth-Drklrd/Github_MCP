@@ -57,34 +57,33 @@ export function loadSrc(idx, manual = false) {
   document.getElementById('pLoadSub').textContent = `Trying server ${idx+1} of ${PROVIDERS.length}…`;
   updateDD(idx);
 
+  // Clear handlers first
   frame.onload = null;
   frame.onerror = null;
 
   let settled = false;
-  function onSettled() {
-    if (settled) return;
-    settled = true;
-    stopFb();
-    load.classList.add('gone');
-  }
+  let currentIdx = idx; // Capture the index for this load attempt
 
-  function onError() {
+  function finish(success) {
     if (settled) return;
     settled = true;
     stopFb();
     load.classList.add('gone');
-    if (manual) {
-      toast(`Server ${idx+1} failed to load. Try another server.`, 5000);
-    } else if (idx < PROVIDERS.length - 1) {
-      toast(`Server ${idx+1} failed — trying next…`);
-      loadSrc(idx + 1, false);
-    } else {
-      toast('All servers failed. Try a different title or check your network/VPN.', 6000);
+    
+    if (!success) {
+      if (manual) {
+        toast(`Server ${currentIdx+1} failed to load. Try another server.`, 5000);
+      } else if (currentIdx < PROVIDERS.length - 1) {
+        toast(`Server ${currentIdx+1} failed — trying next…`);
+        loadSrc(currentIdx + 1, false);
+      } else {
+        toast('All servers failed. Try a different title or check your network/VPN.', 6000);
+      }
     }
   }
 
-  frame.onload = onSettled;
-  frame.onerror = onError;
+  frame.onload = () => finish(true);
+  frame.onerror = () => finish(false);
   frame.src = buildSrcUrl(idx);
 
   if (state.mediaType === 'tv') document.getElementById('pSub').textContent = `Season ${state.curS} · Episode ${state.curE}`;
@@ -94,9 +93,9 @@ export function loadSrc(idx, manual = false) {
     settled = true;
     stopFb();
     load.classList.add('gone');
-    if (idx < PROVIDERS.length - 1) {
-      toast(`Server ${idx+1} timed out — trying next…`);
-      loadSrc(idx + 1, false);
+    if (currentIdx < PROVIDERS.length - 1) {
+      toast(`Server ${currentIdx+1} timed out — trying next…`);
+      loadSrc(currentIdx + 1, false);
     } else {
       toast('All servers timed out. Try a different title or check your network/VPN.', 6000);
     }
